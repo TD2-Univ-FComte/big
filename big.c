@@ -20,7 +20,6 @@ void bign_create_from_value(struct bign *self, uint32_t val) {
 }
 
 void bign_create_from_string(struct bign *self, const char *str) {
-  //Correspond à un index et à la longueur de la chaine
   size_t len = 0;
 
   while(str[len] != '\0'){
