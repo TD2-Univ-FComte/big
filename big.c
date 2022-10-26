@@ -38,9 +38,20 @@ void bign_create_from_string(struct bign *self, const char *str) {
         size--;
       }
 
-      printf("%li", size);
+      char *rev = calloc(9, sizeof(char));
+
+      size_t len_tab = strlen(tab);
+
+      size_t j = len_tab- 1;
+
+      for (size_t i = 0; i < len_tab; i++)
+      {
+        rev[i] = tab[j];
+        j--;
+      }
+
       char *endPtr;
-      self->data[self->size] = strtoul(tab, NULL, 16);
+      self->data[self->size] = strtoul(rev, NULL, 16);
 
       self->size++;
 
