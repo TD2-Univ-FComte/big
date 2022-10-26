@@ -16,6 +16,7 @@ void bign_create_empty(struct bign *self) {
 
 void bign_create_from_value(struct bign *self, uint32_t val) {
   self->size = 1;
+  self->data = calloc(1, sizeof(uint32_t));
   self->data[0] = val;
 }
 
@@ -24,21 +25,26 @@ void bign_create_from_string(struct bign *self, const char *str) {
   bign_create_empty(self);
   self->data = calloc(self->capacity, sizeof(uint32_t));
 
-  size_t size = strlen(str);
+  if(self->data != NULL){
+    size_t size = strlen(str);
 
-  while(size > 0){
+    while(size > 0){
 
-    char *tab = calloc(9, sizeof(char));
+      char *tab = calloc(9, sizeof(char));
 
-    for (size_t i = 0; i < 8 && i > 0; i++)
-    {
-      tab[i] = str[size - 1];
-      size--;
+      for (size_t i = 0; i < 8 && size > 0; i++)
+      {
+        tab[i] = str[size - 1];
+        size--;
+      }
+
+      printf("%li", size);
+      char *endPtr;
+      self->data[self->size] = strtoul(tab, NULL, 16);
+
+      self->size++;
+
     }
-    self->data[self->size] = str_to_integer_ex(tab, 16);
-
-    self->size++;
-
   }
   
   
@@ -78,6 +84,7 @@ void bign_move_from_other(struct bign *self, struct bign *other) {
 }
 
 void bign_destroy(struct bign *self) {
+  //free(self);
 }
 
 void bign_print(const struct bign *self) {
