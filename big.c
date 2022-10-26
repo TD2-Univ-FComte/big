@@ -20,21 +20,53 @@ void bign_create_from_value(struct bign *self, uint32_t val) {
 }
 
 void bign_create_from_string(struct bign *self, const char *str) {
-  size_t len = 0;
+  
+  bign_create_empty(self);
+  self->data = calloc(self->capacity, sizeof(uint32_t));
 
-  while(str[len] != '\0'){
-    len++;
-  }
-  
-  for (size_t i = len; i > 0; i--)
-  {
-    if(str[i] > '9'){
-      self->data[len - i - 1] = str[i] + 10 - 'A';
-    }else {
-      self->data[len - i - 1] = str[i] - '0'; 
+  size_t size = strlen(str);
+
+  while(size > 0){
+
+    char *tab = calloc(9, sizeof(char));
+
+    for (size_t i = 0; i < 8 && i > 0; i++)
+    {
+      tab[i] = str[size - 1];
+      size--;
     }
+    self->data[self->size] = str_to_integer_ex(tab, 16);
+
+    self->size++;
+
   }
   
+  
+}
+
+int str_to_integer_ex(const char *str, int base) {
+    size_t len = strlen(str);
+    int power = 1;
+    int n = 0;
+
+    for(size_t i = 0; i < len; i++){
+      if((str[len - i - 1] >= '0' && str[len - i - 1] <= '9') || (str[len - i - 1] >= 'A' && str[len - i - 1] <= 'Z') || (str[len - i - 1] >= 'a' && str[len - i - 1] <= 'z')){
+        if(str[len - i - 1] >= '0' && str[len - i - 1] <= '9'){
+          int c = (str[len - i - 1] - '0') < base ? (str[len - i - 1] - '0') * power : 0;
+          n += c;
+        }else if(str[len - i - 1] >= 'A' && str[i] <= 'Z'){
+          int c = (str[len - i - 1] - 'A' + 10) < base ? (str[len - i - 1] - 'A' + 10) * power : 0;
+          n += c;
+        }else if(str[len - i - 1] >= 'a' && str[i] <= 'z'){
+          int c = ((str[len - i - 1] - 32) - 'A' + 10) < base ? ((str[len - i - 1] - 32) - 'A' + 10) * power : 0;
+          n += c;
+        }
+        power = power * base;
+      }
+    }
+
+    return n;
+ 
 }
 
 void bign_copy_from_other(struct bign *self, const struct bign *other) {
