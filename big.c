@@ -23,10 +23,11 @@ void bign_create_from_value(struct bign *self, uint32_t val) {
 void bign_create_from_string(struct bign *self, const char *str) {
   
   bign_create_empty(self);
+  size_t size = strlen(str);
+  self->capacity = (size / 8) + (size % 8);
   self->data = calloc(self->capacity, sizeof(uint32_t));
 
   if(self->data != NULL){
-    size_t size = strlen(str);
 
     while(size > 0){
 
@@ -50,66 +51,134 @@ void bign_create_from_string(struct bign *self, const char *str) {
         j--;
       }
 
-      char *endPtr;
       self->data[self->size] = strtoul(rev, NULL, 16);
 
       self->size++;
 
     }
   }
+
+  if(self->data[self->size - 1] == 0 && self->size > 1){
+    self->size--;
+  }
   
   
-}
-
-int str_to_integer_ex(const char *str, int base) {
-    size_t len = strlen(str);
-    int power = 1;
-    int n = 0;
-
-    for(size_t i = 0; i < len; i++){
-      if((str[len - i - 1] >= '0' && str[len - i - 1] <= '9') || (str[len - i - 1] >= 'A' && str[len - i - 1] <= 'Z') || (str[len - i - 1] >= 'a' && str[len - i - 1] <= 'z')){
-        if(str[len - i - 1] >= '0' && str[len - i - 1] <= '9'){
-          int c = (str[len - i - 1] - '0') < base ? (str[len - i - 1] - '0') * power : 0;
-          n += c;
-        }else if(str[len - i - 1] >= 'A' && str[i] <= 'Z'){
-          int c = (str[len - i - 1] - 'A' + 10) < base ? (str[len - i - 1] - 'A' + 10) * power : 0;
-          n += c;
-        }else if(str[len - i - 1] >= 'a' && str[i] <= 'z'){
-          int c = ((str[len - i - 1] - 32) - 'A' + 10) < base ? ((str[len - i - 1] - 32) - 'A' + 10) * power : 0;
-          n += c;
-        }
-        power = power * base;
-      }
-    }
-
-    return n;
- 
+  
 }
 
 void bign_copy_from_other(struct bign *self, const struct bign *other) {
   self->size = other->size;
-  self->capacity = other->capacity;
+  
 }
 
 void bign_move_from_other(struct bign *self, struct bign *other) {
 }
 
 void bign_destroy(struct bign *self) {
-  //free(self);
+  free(self->data);
 }
 
 void bign_print(const struct bign *self) {
 }
 
 int bign_cmp(const struct bign *lhs, const struct bign *rhs) {
+  /*if(lhs->size > rhs->size){
+    return 1;
+  }else if(lhs->size < rhs->size){
+    return -1;
+  }else {
+    for (size_t i = lhs->size - 1; i >= 0; i--)
+    {
+      if(lhs->data[i] > rhs->data[i]){
+        return 1;
+      }else if(lhs->data[i] < rhs->data[i]){
+        return -1;
+      }
+    }
+    
+  }*/
   return 0;
 }
 
 int bign_cmp_zero(const struct bign *self) {
-  return 0;
+  return self->data[0] == 0 ? 0 : 1;
 }
 
 void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
+  if(lhs->size > rhs->size){
+
+    self->data = calloc(lhs->size, sizeof(uint32_t));
+
+    uint32_t retenu = 0;
+    for (size_t i = 0; i < rhs->size; i++)
+    {
+      uint32_t c = lhs->data[i] + rhs->data[i];
+
+      if(retenu > 0){
+        c += retenu;
+        retenu = 0;
+      }
+
+      self->data[i] = c;
+
+      if(c > 9){
+        retenu = c % 10;
+      }
+    }
+
+    if(retenu > 0){
+      self->data[self->size - 1] += retenu;
+    }
+    
+  }else if(lhs->size < rhs->size){
+
+    self->data = calloc(rhs->size, sizeof(uint32_t));
+
+    uint32_t retenu = 0;
+    for (size_t i = 0; i < lhs->size; i++)
+    {
+      uint32_t c = lhs->data[i] + rhs->data[i];
+
+      if(retenu > 0){
+        c += retenu;
+        retenu = 0;
+      }
+
+      self->data[i] = c;
+
+      if(c > 9){
+        retenu = c % 10;
+      }
+    }
+
+    if(retenu > 0){
+      self->data[self->size - 1] += retenu;
+    }
+
+  }else {
+    self->data = calloc(lhs->size, sizeof(uint32_t));
+
+    uint32_t retenu = 0;
+    for (size_t i = 0; i < lhs->size; i++)
+    {
+      uint32_t c = lhs->data[i] + rhs->data[i];
+
+      if(retenu > 0){
+        c += retenu;
+        retenu = 0;
+      }
+
+      self->data[i] = c;
+
+      if(c > 9){
+        retenu = c % 10;
+      }
+    }
+
+    if(retenu > 0){
+      self->data[self->size - 1] += retenu;
+    }
+  }
 }
 
 
