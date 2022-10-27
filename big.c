@@ -67,7 +67,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
 }
 
 void bign_copy_from_other(struct bign *self, const struct bign *other) {
-  self->size = other->size;
+  //self->size = other->size;
   
 }
 
