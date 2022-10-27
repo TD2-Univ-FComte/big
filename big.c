@@ -51,7 +51,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
         j--;
       }
 
-      self->data[self->size] = strtoul(rev, NULL, 16);
+      self->data[self->size] = str_to_integer_ex(rev, 16);
 
       self->size++;
 
@@ -62,9 +62,43 @@ void bign_create_from_string(struct bign *self, const char *str) {
     self->size--;
   }
   
-  
-  
 }
+
+int str_to_integer(const char *str) {
+  int n = 0; 
+  size_t i = 0;
+  
+  while (str && str[i] != '\0')
+  {
+    if(str[i] >= '0' && str[i] <= '9'){
+      //Soustraction de 48 (correspondant au code ascii de 0), ex : 9 en ascii correspond à 57, 57 - 48 = 9
+      n = n * 10 + (str[i] - '0');
+    }
+    i++;
+  }
+
+  return n;
+}
+
+int str_to_integer_ex(char *str, int base) {
+    size_t resultat=0;
+    bool endfor=false;
+    for(size_t i = 0;i< strlen(str) && endfor==false ;i++){
+        if(str[i]>='A' && str[i]<='A'+(base-11)){
+            resultat= resultat * base+str[i]-'A'+10;
+        }else if(str[i]>='0' && str[i]<='0'+10 && str[i]<='0'+(base-1)){
+            resultat=resultat * base+str[i]-'0';
+        }else if(str[i]>='a' && str[i]<='a'+(base-11)){
+            resultat=resultat * base+str[i]-'a'+10;
+        }else{
+            endfor=true;
+        }
+
+    }
+    
+    return resultat;
+ 
+} 
 
 void bign_copy_from_other(struct bign *self, const struct bign *other) {
   if(self->data != NULL){
@@ -133,6 +167,10 @@ int bign_cmp_zero(const struct bign *self) {
 }
 
 void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
+
+  printf("%i", lhs->data[0]);
+  printf("-%i", rhs->data[0]);
+
   if(lhs->size > rhs->size){
 
     self->data = calloc(lhs->size, sizeof(uint32_t));
@@ -140,18 +178,13 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < rhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i];
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
+      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
-      if(retenu > 0){
-        c += retenu;
-        retenu = 0;
-      }
+      self->data[i] = c % 10;
 
-      self->data[i] = c;
-
-      if(c > 9){
-        retenu = c % 10;
-      }
+      retenu = c / 10;
     }
 
     if(retenu > 0){
@@ -165,18 +198,13 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i];
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
+      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
-      if(retenu > 0){
-        c += retenu;
-        retenu = 0;
-      }
+      self->data[i] = c % 10;
 
-      self->data[i] = c;
-
-      if(c > 9){
-        retenu = c % 10;
-      }
+      retenu = c / 10;
     }
 
     if(retenu > 0){
@@ -189,28 +217,71 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i];
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
+      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
-      if(retenu > 0){
-        c += retenu;
-        retenu = 0;
-      }
+      self->data[i] = c % 10;
 
-      self->data[i] = c;
-
-      if(c > 9){
-        retenu = c % 10;
-      }
+      retenu = c / 10;
     }
 
     if(retenu > 0){
-      self->data[self->size - 1] += retenu;
+      //self->data[self->size - 1] += retenu;
     }
   }
 }
 
 
 void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
+  /*if(bign_cmp(lhs, rhs) == 1){
+
+    if(lhs->size > rhs->size){
+
+      self->data = calloc(lhs->size, sizeof(uint32_t));
+
+      int b = 0;
+      for (size_t i = 0; i < rhs->size; i++)
+      {
+
+        uint32_t c = lhs->data[i] - rhs->data[i] - b;
+
+        self->data[i] = c % 10;
+
+        b = c / 10;
+      }
+      
+    }else if(lhs->size < rhs->size){
+
+      self->data = calloc(rhs->size, sizeof(uint32_t));
+
+      int b = 0;
+      for (size_t i = 0; i < lhs->size; i++)
+      {
+
+        uint32_t c = lhs->data[i] - rhs->data[i] - b;
+
+        self->data[i] = c % 10;
+
+        b = c / 10;
+      }
+
+    }else {
+      self->data = calloc(lhs->size, sizeof(uint32_t));
+
+      int b = 0;
+      for (size_t i = 0; i < lhs->size; i++)
+      {
+
+        uint32_t c = lhs->data[i] - rhs->data[i] - b;
+
+        self->data[i] = c % 10;
+
+        b = c / 10;
+      }
+    }
+    
+  }*/
 }
 
 void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
