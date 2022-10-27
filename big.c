@@ -67,15 +67,34 @@ void bign_create_from_string(struct bign *self, const char *str) {
 }
 
 void bign_copy_from_other(struct bign *self, const struct bign *other) {
-  //self->size = other->size;
-  
+  if(self->data != NULL){
+    bign_destroy(self);
+  }
+  self->data = calloc(other->size, sizeof(uint32_t));
+  for (size_t i = 0; i < other->size; i++)
+  {
+    self->data[i] = other->data[i];
+  }
+  self->size = other->size;
 }
 
 void bign_move_from_other(struct bign *self, struct bign *other) {
+  /*self->data = calloc(other->size, sizeof(uint32_t));
+  for (size_t i = 0; i < other->size; i++)
+  {
+    self->data[i] = other->data[i];
+  }
+  self->size = other->size;
+  bign_destroy(other);
+  other->capacity = 0;
+  other->size = 0;*/
 }
 
 void bign_destroy(struct bign *self) {
-  free(self->data);
+  if(self->data != NULL){
+    free(self->data);
+    self->data = NULL;
+  }
 }
 
 void bign_print(const struct bign *self) {
@@ -215,6 +234,8 @@ void bign_exp(struct bign *self, const struct bign *lhs, const struct bign *rhs)
  */
 
 void bigz_create_empty(struct bigz *self) {
+  //self->n = NULL;
+  //self->positive = true;
 }
 
 void bigz_create_from_value(struct bigz *self, int32_t val) {
