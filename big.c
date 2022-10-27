@@ -101,13 +101,14 @@ void bign_print(const struct bign *self) {
 }
 
 int bign_cmp(const struct bign *lhs, const struct bign *rhs) {
-  /*if(lhs->size > rhs->size){
-    return 1;
+  size_t max=rhs->size;
+
+  if(lhs->size > rhs->size){
+    max = lhs->size;
   }else if(lhs->size < rhs->size){
-    return -1;
+    max = rhs->size;
   }else {
-    for (size_t i = lhs->size - 1; i >= 0; i--)
-    {
+    for(size_t i = 0; i <max ; i++){
       if(lhs->data[i] > rhs->data[i]){
         return 1;
       }else if(lhs->data[i] < rhs->data[i]){
@@ -115,8 +116,16 @@ int bign_cmp(const struct bign *lhs, const struct bign *rhs) {
       }
     }
     
-  }*/
-  return 0;
+  }
+  if(lhs->size > rhs->size){
+      //printf("%s\n", "ici");
+      return 1;
+    }else if(lhs->size < rhs->size){
+     //printf("%s\n", "la");make
+     
+      return -1;
+    }
+  return  0;
 }
 
 int bign_cmp_zero(const struct bign *self) {
