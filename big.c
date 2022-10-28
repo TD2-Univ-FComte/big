@@ -51,11 +51,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
         j--;
       }
 
-      int number = strtoul(rev, NULL, 16);
-
-      printf("Number result: %i\n", number);
-
-      self->data[self->size] = number;
+      self->data[self->size] = str_to_integer_ex(rev, 16);
 
       self->size++;
 
@@ -68,7 +64,23 @@ void bign_create_from_string(struct bign *self, const char *str) {
   
 }
 
-uint32_t str_to_integer_ex(char *str, uint32_t base) {
+int str_to_integer(const char *str) {
+  int n = 0; 
+  size_t i = 0;
+  
+  while (str && str[i] != '\0')
+  {
+    if(str[i] >= '0' && str[i] <= '9'){
+      //Soustraction de 48 (correspondant au code ascii de 0), ex : 9 en ascii correspond à 57, 57 - 48 = 9
+      n = n * 10 + (str[i] - '0');
+    }
+    i++;
+  }
+
+  return n;
+}
+
+int str_to_integer_ex(char *str, int base) {
     size_t resultat=0;
     bool endfor=false;
     for(size_t i = 0;i< strlen(str) && endfor==false ;i++){
@@ -171,11 +183,13 @@ uint32_t pow3(uint32_t r, uint32_t n){
   }
 
   return res;
+
 }
 
 void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
-  uint32_t base = pow3(2,31);
-  printf("Base : %i\n", base);
+
+  uint32_t base = pow3(2, 31);
+
   if(lhs->size > rhs->size){
 
     if(self->data == NULL){
@@ -185,15 +199,13 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < rhs->size; i++)
     {
-      printf("LHS : %i\n", lhs->data[i]);
-      printf("RHS : %i\n", rhs->data[i]);
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
       uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
-
-      printf("Résultat : %i\n", c % base);
 
       self->data[i] = c % base;
 
-      retenu = c / 10;
+      retenu = c / base;
     }
     self->size = rhs->size;
     self->data[lhs->size - 1] += retenu;
@@ -209,11 +221,9 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      printf("LHS : %i\n", lhs->data[i]);
-      printf("RHS : %i\n", rhs->data[i]);
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
       uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
-
-      printf("Résultat : %i\n", c % base);
 
       self->data[i] = c % base;
 
@@ -231,17 +241,15 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      printf("LHS : %i\n", lhs->data[i]);
-      printf("RHS : %i\n", rhs->data[i]);
-
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
       uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
-
-      printf("Résultat : %i\n", c % base);
 
       self->data[i] = c % base;
 
       retenu = c / base;
     }
+
     self->size = lhs->size;
     self->data[lhs->size - 1] += retenu;
   }
