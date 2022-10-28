@@ -101,15 +101,19 @@ void bign_copy_from_other(struct bign *self, const struct bign *other) {
 }
 
 void bign_move_from_other(struct bign *self, struct bign *other) {
-  /*self->data = calloc(other->size, sizeof(uint32_t));
+  if(self->data != NULL){
+    bign_destroy(self);
+  }
+  self->capacity = other->capacity;
+  self->size = other->size;
+  self->data = calloc(other->size, sizeof(uint32_t));
   for (size_t i = 0; i < other->size; i++)
   {
-    self->data[i] = other->data[i];
+    self->data[i] = other->data[i]; 
   }
-  self->size = other->size;
   bign_destroy(other);
   other->capacity = 0;
-  other->size = 0;*/
+  other->size = 0;
 }
 
 void bign_destroy(struct bign *self) {
@@ -189,7 +193,7 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 
       self->data[i] = c % base;
 
-      retenu = c / base;
+      retenu = c / 10;
     }
     self->size = rhs->size;
     self->data[lhs->size - 1] += retenu;
@@ -245,54 +249,6 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 
 
 void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
-  /*if(bign_cmp(lhs, rhs) == 1){
-
-    if(lhs->size > rhs->size){
-
-      self->data = calloc(lhs->size, sizeof(uint32_t));
-
-      int b = 0;
-      for (size_t i = 0; i < rhs->size; i++)
-      {
-
-        uint32_t c = lhs->data[i] - rhs->data[i] - b;
-
-        self->data[i] = c % 10;
-
-        b = c / 10;
-      }
-      
-    }else if(lhs->size < rhs->size){
-
-      self->data = calloc(rhs->size, sizeof(uint32_t));
-
-      int b = 0;
-      for (size_t i = 0; i < lhs->size; i++)
-      {
-
-        uint32_t c = lhs->data[i] - rhs->data[i] - b;
-
-        self->data[i] = c % 10;
-
-        b = c / 10;
-      }
-
-    }else {
-      self->data = calloc(lhs->size, sizeof(uint32_t));
-
-      int b = 0;
-      for (size_t i = 0; i < lhs->size; i++)
-      {
-
-        uint32_t c = lhs->data[i] - rhs->data[i] - b;
-
-        self->data[i] = c % 10;
-
-        b = c / 10;
-      }
-    }
-    
-  }*/
 }
 
 void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
