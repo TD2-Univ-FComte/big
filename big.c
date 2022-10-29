@@ -8,7 +8,7 @@
 
 
 void bign_create_empty(struct bign *self) {
-  self->capacity = 10;
+  self->capacity = 20;
   self->size = 0;
   self->data = NULL;
 }
@@ -51,7 +51,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
         j--;
       }
 
-      self->data[self->size] = strtoul(rev, NULL, 16);
+      self->data[self->size] = str_to_integer_ex(rev, 16);
 
       self->size++;
 
@@ -62,9 +62,43 @@ void bign_create_from_string(struct bign *self, const char *str) {
     self->size--;
   }
   
-  
-  
 }
+
+int str_to_integer(const char *str) {
+  int n = 0; 
+  size_t i = 0;
+  
+  while (str && str[i] != '\0')
+  {
+    if(str[i] >= '0' && str[i] <= '9'){
+      //Soustraction de 48 (correspondant au code ascii de 0), ex : 9 en ascii correspond à 57, 57 - 48 = 9
+      n = n * 10 + (str[i] - '0');
+    }
+    i++;
+  }
+
+  return n;
+}
+
+int str_to_integer_ex(char *str, int base) {
+    size_t resultat=0;
+    bool endfor=false;
+    for(size_t i = 0;i< strlen(str) && endfor==false ;i++){
+        if(str[i]>='A' && str[i]<='A'+(base-11)){
+            resultat= resultat * base+str[i]-'A'+10;
+        }else if(str[i]>='0' && str[i]<='0'+10 && str[i]<='0'+(base-1)){
+            resultat=resultat * base+str[i]-'0';
+        }else if(str[i]>='a' && str[i]<='a'+(base-11)){
+            resultat=resultat * base+str[i]-'a'+10;
+        }else{
+            endfor=true;
+        }
+
+    }
+    
+    return resultat;
+ 
+} 
 
 void bign_copy_from_other(struct bign *self, const struct bign *other) {
   if(self->data != NULL){
@@ -111,27 +145,30 @@ int bign_cmp(const struct bign *lhs, const struct bign *rhs) {
   size_t max=rhs->size;
 
   if(lhs->size > rhs->size){
-    max = lhs->size;
+    printf("%s\n", "ici");
+    return 1;
   }else if(lhs->size < rhs->size){
-    max = rhs->size;
+    printf("%s\n", "la");
+    printf("%i\n", rhs->size);
+    return -1;
   }else {
-    for(size_t i = 0; i <max ; i++){
-      if(lhs->data[i] > rhs->data[i]){
-        return 1;
-      }else if(lhs->data[i] < rhs->data[i]){
-        return -1;
-      }
-    }
-    
-  }
-  if(lhs->size > rhs->size){
-      //printf("%s\n", "ici");
-      return 1;
+    if(lhs->size > rhs->size){
+      max = lhs->size;
     }else if(lhs->size < rhs->size){
-     //printf("%s\n", "la");make
-     
-      return -1;
+      max = rhs->size;
+    }else {
+      for(size_t i = 0; i <max ; i++){
+        printf("Cmp lhs : (%i)\n", lhs->data[i]);
+        printf("Cmp rhs : (%i)\n", rhs->data[i]);
+        if(lhs->data[i] > rhs->data[i]){
+          return 1;
+        }else if(lhs->data[i] < rhs->data[i]){
+          return -1;
+        }
+      }
+      
     }
+  }
   return  0;
 }
 
@@ -139,80 +176,85 @@ int bign_cmp_zero(const struct bign *self) {
   return self->data[0] == 0 ? 0 : 1;
 }
 
+uint32_t pow3(uint32_t r, uint32_t n){
+  uint32_t res = r;
+  uint32_t i = 1;
+  while (i < n)
+  {
+    res = res * r;
+    i++;
+  }
+
+  return res;
+
+}
+
 void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
+
+  uint32_t base = pow3(2, 31);
+
   if(lhs->size > rhs->size){
 
-    self->data = calloc(lhs->size, sizeof(uint32_t));
+    if(self->data == NULL){
+      self->data = calloc(lhs->size, sizeof(uint32_t));
+    }
 
     uint32_t retenu = 0;
     for (size_t i = 0; i < rhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i];
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
+      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
-      if(retenu > 0){
-        c += retenu;
-        retenu = 0;
-      }
+      self->data[i] = c % base;
 
-      self->data[i] = c;
-
-      if(c > 9){
-        retenu = c % 10;
-      }
+      retenu = c / base;
     }
+    self->size = rhs->size;
+    self->data[lhs->size - 1] += retenu;
 
-    if(retenu > 0){
-      self->data[self->size - 1] += retenu;
-    }
+    printf("Size : %i\n", self->size);
     
   }else if(lhs->size < rhs->size){
 
-    self->data = calloc(rhs->size, sizeof(uint32_t));
+    if(self->data == NULL){
+      self->data = calloc(rhs->size, sizeof(uint32_t));
+    }
 
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i];
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
+      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
-      if(retenu > 0){
-        c += retenu;
-        retenu = 0;
-      }
+      self->data[i] = c % base;
 
-      self->data[i] = c;
-
-      if(c > 9){
-        retenu = c % 10;
-      }
+      retenu = c / base;
     }
-
-    if(retenu > 0){
-      self->data[self->size - 1] += retenu;
-    }
+    self->size = lhs->size;
+    self->data[lhs->size - 1] += retenu;
 
   }else {
-    self->data = calloc(lhs->size, sizeof(uint32_t));
+
+    if(self->data == NULL){
+      self->data = calloc(lhs->size, sizeof(uint32_t));
+    }
 
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i];
+      printf("%i", lhs->data[i]);
+      printf("-%i", rhs->data[i]);
+      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
-      if(retenu > 0){
-        c += retenu;
-        retenu = 0;
-      }
+      self->data[i] = c % base;
 
-      self->data[i] = c;
-
-      if(c > 9){
-        retenu = c % 10;
-      }
+      retenu = c / base;
     }
 
-    if(retenu > 0){
-      self->data[self->size - 1] += retenu;
-    }
+    self->size = lhs->size;
+    self->data[lhs->size - 1] += retenu;
   }
 }
 
