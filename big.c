@@ -82,16 +82,19 @@ void bign_move_from_other(struct bign *self, struct bign *other) {
   if(self->data != NULL){
     bign_destroy(self);
   }
+  
   self->capacity = other->capacity;
   self->size = other->size;
   self->data = calloc(other->size, sizeof(uint32_t));
+
   for (size_t i = 0; i < other->size; i++)
   {
     self->data[i] = other->data[i]; 
   }
   bign_destroy(other);
+
   other->capacity = 0;
-  other->size = 0;
+  other->size = 0; 
 }
 
 void bign_destroy(struct bign *self) {
