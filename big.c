@@ -116,15 +116,22 @@ void bign_move_from_other(struct bign *self, struct bign *other) {
   if(self->data != NULL){
     bign_destroy(self);
   }
-  
+   
   self->capacity = other->capacity;
   self->size = other->size;
-  self->data = calloc(other->size, sizeof(uint32_t));
-
+  
+  self->data = other->data;
+  //printf("%p\n",self->data);
+  //printf("%p\n",other->data);
+  self->data = malloc(other->size * sizeof(uint32_t));
+  //printf("%p\n",self->data);
   for (size_t i = 0; i < other->size; i++)
   {
     self->data[i] = other->data[i]; 
+    
   }
+  //printf("%p\n",self->data);
+  //printf("%p\n",other->data);
   bign_destroy(other);
 
   other->capacity = 0;
@@ -143,31 +150,29 @@ void bign_print(const struct bign *self) {
 
 int bign_cmp(const struct bign *lhs, const struct bign *rhs) {
   size_t max=rhs->size;
-
   if(lhs->size > rhs->size){
-    printf("%s\n", "ici");
+    max = lhs->size;
+  }else if(lhs->size < rhs->size){
+    max = rhs->size;
+  }else {
+    for(size_t i = 0; i <max ; i++){
+       // printf("Cmp lhs : (%i)\n", lhs->data[i]);
+        //printf("Cmp rhs : (%i)\n", rhs->data[i]);
+      if(lhs->data[i] > rhs->data[i]){
+        return 1;
+      }else if(lhs->data[i] < rhs->data[i]){
+        return -1;
+      }
+    }
+      
+  }
+  if(lhs->size > rhs->size){
+   // printf("%s\n", "ici");
     return 1;
   }else if(lhs->size < rhs->size){
-    printf("%s\n", "la");
-    printf("%i\n", rhs->size);
+    //printf("%s\n", "la");
+    //printf("%i\n", rhs->size);
     return -1;
-  }else {
-    if(lhs->size > rhs->size){
-      max = lhs->size;
-    }else if(lhs->size < rhs->size){
-      max = rhs->size;
-    }else {
-      for(size_t i = 0; i <max ; i++){
-        printf("Cmp lhs : (%i)\n", lhs->data[i]);
-        printf("Cmp rhs : (%i)\n", rhs->data[i]);
-        if(lhs->data[i] > rhs->data[i]){
-          return 1;
-        }else if(lhs->data[i] < rhs->data[i]){
-          return -1;
-        }
-      }
-      
-    }
   }
   return  0;
 }
@@ -260,9 +265,52 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 
 
 void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
+  uint32_t base = pow3(2, 31);
+  size_t max = rhs->size;
+  if (bign_cmp(lhs,rhs)==0 || bign_cmp(lhs,rhs)>0){
+    if(lhs->size > rhs->size){
+      max = rhs->size;
+    }else if(lhs->size < rhs->size){
+      max = lhs->size;
+    }
+    if(self->data == NULL){
+      self->data = calloc(max, sizeof(uint32_t));
+    }
+
+    uint32_t retenu = 0;
+    for (size_t i = 0; i < max; i++)
+    {
+      uint32_t d = lhs->data[i] - rhs->data[i] - retenu;
+
+      self->data[i] = d % base;
+
+      retenu = d / base;
+    }
+    self->size = max;
+    self->data[lhs->size - 1] -= retenu;
+  }
+
 }
 
 void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
+  /*bign_destroy(self);
+  self->size=lhs->size+rhs->size;
+  self->capacity=(lhs->capacity+rhs->capacity)*2;
+  self->data = calloc(self->size, sizeof(uint32_t));
+  
+  uint32_t t = 0;
+  for(size_t i = 0;i<lhs->size;i++){
+    uint32_t retenu = 0;
+    for(size_t j = 0;i<rhs->size;j++){
+      t = lhs->data[i]* rhs->data[j] + self->data[i+j]+ retenu;
+      self->data[i+j]=t%16;
+      retenu = t/16;
+    }
+    if(retenu>0){
+      self->size+=1;
+      self->data[i+rhs->size]=retenu;
+    }
+  }*/
 }
 
 
