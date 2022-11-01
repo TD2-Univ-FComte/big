@@ -322,11 +322,37 @@ void bign_mul_short(struct bign *self, const struct bign *lhs, uint32_t rhs) {
 
 // https://janmr.com/blog/2012/11/basic-multiple-precision-short-division/
 void bign_div_short(struct bign *quo, uint32_t *rem, const struct bign *lhs, uint32_t rhs) {
+  quo->data = calloc(quo->capacity, sizeof(uint32_t));
+  uint32_t r = 0;
+  uint32_t base = pow3(2, 31);
+  for (size_t i = 0; i < lhs->size; i++)
+  {
+    uint32_t c = r * base + lhs->data[i];
+    quo->data[i] = c % rhs;
+    quo->size += 1;
+    r = c / rhs;
+  }
+
+  rem = r;
 }
 
 
 // https://janmr.com/blog/2014/04/basic-multiple-precision-long-division/
 void bign_div(struct bign *quo, struct bign *rem, const struct bign *lhs, const struct bign *rhs) {
+  /*quo->data = calloc(quo->capacity, sizeof(uint32_t));
+  rem->data = calloc(rem->capacity, sizeof(uint32_t));
+  if(bign_cmp(lhs, rhs) == -1){
+    for (size_t i = 0; i < lhs->size; i++)
+    {
+      rem->data[i] = lhs->data[i];
+    }
+    rem->size = lhs->size;
+
+    quo->data[0] = 0;
+    quo->size = 1;
+  }else {
+    
+  }*/
 }
 
 
@@ -340,11 +366,22 @@ void bign_exp(struct bign *self, const struct bign *lhs, const struct bign *rhs)
  */
 
 void bigz_create_empty(struct bigz *self) {
-  //self->n = NULL;
-  //self->positive = true;
+  /*bign_create_empty(&self->n);
+  self->positive = true;*/
 }
 
 void bigz_create_from_value(struct bigz *self, int32_t val) {
+  /*if(val > 0){
+    self->n.data = calloc(self->n.capacity, sizeof(uint32_t));
+    self->n.data[0] = val;
+    self->n.size = 1;
+    self->positive = true;
+  }else {
+    self->n.data = calloc(self->n.capacity, sizeof(uint32_t));
+    self->n.data[0] = val;
+    self->n.size = 1;
+    self->positive = false;
+  }*/
 }
 
 void bigz_create_from_string(struct bigz *self, const char *str, unsigned base) {
