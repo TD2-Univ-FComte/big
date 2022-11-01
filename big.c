@@ -172,6 +172,7 @@ int bign_cmp_zero(const struct bign *self) {
   return self->data[0] == 0 ? 0 : 1;
 }
 
+//Fonction permettant de calculer la puissance n d'un nombre donné
 uint32_t pow3(uint32_t r, uint32_t n){
   uint32_t res = r;
   uint32_t i = 1;
