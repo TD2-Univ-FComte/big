@@ -32,17 +32,17 @@ void bign_create_from_string(struct bign *self, const char *str) {
     while(size > 0){
 
       char *tab = calloc(9, sizeof(char));
+      size_t len_tab = 0;
 
       //On rempli une chaine tampon avec 8 charactères ou moins
       for (size_t i = 0; i < 8 && size > 0; i++)
       {
         tab[i] = str[size - 1];
         size--;
+        len_tab++;
       }
 
       char *rev = calloc(9, sizeof(char));
-
-      size_t len_tab = strlen(tab);
 
       size_t j = len_tab- 1;
 
@@ -53,6 +53,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
         j--;
       }
 
+      //Conversion de la chaine de caractère vers un entier
       self->data[self->size] = str_to_integer_ex(rev, 16);
 
       self->size++;
@@ -67,22 +68,6 @@ void bign_create_from_string(struct bign *self, const char *str) {
     self->size--;
   }
   
-}
-
-int str_to_integer(const char *str) {
-  int n = 0; 
-  size_t i = 0;
-  
-  while (str && str[i] != '\0')
-  {
-    if(str[i] >= '0' && str[i] <= '9'){
-      //Soustraction de 48 (correspondant au code ascii de 0), ex : 9 en ascii correspond à 57, 57 - 48 = 9
-      n = n * 10 + (str[i] - '0');
-    }
-    i++;
-  }
-
-  return n;
 }
 
 int str_to_integer_ex(char *str, int base) {
