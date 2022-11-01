@@ -33,6 +33,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
 
       char *tab = calloc(9, sizeof(char));
 
+      //On rempli une chaine tampon avec 8 charactères ou moins
       for (size_t i = 0; i < 8 && size > 0; i++)
       {
         tab[i] = str[size - 1];
@@ -45,6 +46,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
 
       size_t j = len_tab- 1;
 
+      //On réinverse la chaine "tampon"
       for (size_t i = 0; i < len_tab; i++)
       {
         rev[i] = tab[j];
@@ -54,6 +56,9 @@ void bign_create_from_string(struct bign *self, const char *str) {
       self->data[self->size] = str_to_integer_ex(rev, 16);
 
       self->size++;
+
+      free(tab);
+      free(rev);
 
     }
   }
@@ -350,8 +355,9 @@ void bign_div(struct bign *quo, struct bign *rem, const struct bign *lhs, const 
 
     quo->data[0] = 0;
     quo->size = 1;
-  }else {
-    
+  }else if(rhs->size == 1){
+    uint32_t r = 0;
+    bign_div_short(quo, r, lhs, rhs);
   }*/
 }
 
