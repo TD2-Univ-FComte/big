@@ -64,6 +64,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
     }
   }
 
+  //Normalisation (suppression du 0 en chiffre significatif)
   if(self->data[self->size - 1] == 0 && self->size > 1){
     self->size--;
   }
