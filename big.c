@@ -15,7 +15,8 @@ void bign_create_empty(struct bign *self) {
   self->data = NULL;
 }
 
-void bign_array_add(struct bign *self, uint32_t e) {
+//Algorithme du cours pour étendre la taille d'un tableau dynamique (en augmentant sa capacité de x2)
+void bign_array_add(struct bign *self, uint32_t value) {
   if (self->size == self->capacity) {
     self->capacity *= 2;
     int *data = calloc(self->capacity, sizeof(int));
@@ -23,8 +24,8 @@ void bign_array_add(struct bign *self, uint32_t e) {
     free(self->data);
     self->data = data;
   }
-  self->data[self->size] = e;
-  self->size += 1;
+  self->data[self->size] = value;
+  self->size++;
 }
 
 void bign_create_from_value(struct bign *self, uint32_t val) {
@@ -46,7 +47,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
       char *tab = calloc(9, sizeof(char));
       size_t len_tab = 0;
 
-      //On rempli une chaine tampon avec 8 charactères ou moins
+      //On rempli une chaine tampon avec 8 charactères ou moins (selon ce qu'il reste dans la liste principale)
       for (size_t i = 0; i < 8 && size > 0; i++)
       {
         tab[i] = str[size - 1];
