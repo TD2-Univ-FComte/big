@@ -1,3 +1,5 @@
+//Binome : Gayot Arthur (TD2) & Dolard Anton (TD2)
+
 #include "big.h"
 
 #include <assert.h>
