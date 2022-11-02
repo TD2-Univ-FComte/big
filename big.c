@@ -1,4 +1,4 @@
-//Binome : Gayot Arthur (TD2) & Dolard Anton (TD2)
+//Binome : Gayot Arthur (TP2B) & Dolard Anton (TP2B)
 
 #include "big.h"
 
