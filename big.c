@@ -15,6 +15,17 @@ void bign_create_empty(struct bign *self) {
   self->data = NULL;
 }
 
+void bign_array_add(struct bign *self, uint32_t e) {
+  if (self->size == self->capacity) {
+    self->capacity *= 2;
+    int *data = calloc(self->capacity, sizeof(int));
+    memcpy(data, self->data, self->size * sizeof(int));
+    free(self->data);
+    self->data = data;
+  }
+  self->data[self->size] = e;
+  self->size += 1;
+}
 
 void bign_create_from_value(struct bign *self, uint32_t val) {
   self->size = 1;
@@ -26,7 +37,6 @@ void bign_create_from_string(struct bign *self, const char *str) {
   
   bign_create_empty(self);
   size_t size = strlen(str);
-  self->capacity = (size / 8) + (size % 8);
   self->data = calloc(self->capacity, sizeof(uint32_t));
 
   if(self->data != NULL){
@@ -56,9 +66,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
       }
 
       //Conversion de la chaine de caractère vers un entier
-      self->data[self->size] = str_to_integer_ex(rev, 16);
-
-      self->size++;
+      bign_array_add(self, str_to_integer_ex(rev, 16));
 
       free(tab);
       free(rev);
@@ -113,20 +121,13 @@ void bign_move_from_other(struct bign *self, struct bign *other) {
   self->capacity = other->capacity;
   self->size = other->size;
   
-  self->data = other->data;
-  //printf("%p\n",self->data);
-  //printf("%p\n",other->data);
   self->data = malloc(other->size * sizeof(uint32_t));
-  //printf("%p\n",self->data);
   for (size_t i = 0; i < other->size; i++)
   {
     self->data[i] = other->data[i]; 
-    
   }
-  //printf("%p\n",self->data);
-  //printf("%p\n",other->data);
-  bign_destroy(other);
 
+  other->data = NULL;
   other->capacity = 0;
   other->size = 0; 
 }
@@ -174,18 +175,20 @@ int bign_cmp_zero(const struct bign *self) {
   return self->data[0] == 0 ? 0 : 1;
 }
 
-//Fonction permettant de calculer la puissance n d'un nombre donné
+//Fonction permettant de calculer la puissance n d'un nombre donné (exponentiation rapide)
 uint32_t pow3(uint32_t r, uint32_t n){
   uint32_t res = r;
   uint32_t i = 1;
-  while (i < n)
-  {
-    res = res * r;
-    i++;
+  
+  if(n == 1){
+    return r;
+  }else {
+    if(n % 2 == 0){
+      return pow3(r * r, n/2);
+    }else {
+      return r * pow3(r * r, (n-1)/2);
+    }
   }
-
-  return res;
-
 }
 
 void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
@@ -201,8 +204,6 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < rhs->size; i++)
     {
-      printf("%i", lhs->data[i]);
-      printf("-%i", rhs->data[i]);
       uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
       self->data[i] = c % base;
@@ -223,8 +224,6 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      printf("%i", lhs->data[i]);
-      printf("-%i", rhs->data[i]);
       uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
       self->data[i] = c % base;
@@ -243,8 +242,6 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      printf("%i", lhs->data[i]);
-      printf("-%i", rhs->data[i]);
       uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
 
       self->data[i] = c % base;
@@ -287,18 +284,18 @@ void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 }
 
 void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
-  /*bign_destroy(self);
-  self->size=lhs->size+rhs->size;
+  /*self->size=lhs->size+rhs->size;
   self->capacity=(lhs->capacity+rhs->capacity)*2;
   self->data = calloc(self->size, sizeof(uint32_t));
+
+  uint32_t base = pow3(2,31);
   
-  uint32_t t = 0;
   for(size_t i = 0;i<lhs->size;i++){
     uint32_t retenu = 0;
     for(size_t j = 0;i<rhs->size;j++){
-      t = lhs->data[i]* rhs->data[j] + self->data[i+j]+ retenu;
-      self->data[i+j]=t%16;
-      retenu = t/16;
+      uint32_t t = lhs->data[i];
+      self->data[i+j]=t % base;
+      retenu = t / base;
     }
     if(retenu>0){
       self->size+=1;
@@ -347,6 +344,8 @@ void bign_div(struct bign *quo, struct bign *rem, const struct bign *lhs, const 
   }else if(rhs->size == 1){
     uint32_t r = 0;
     bign_div_short(quo, r, lhs, rhs);
+  }else {
+
   }*/
 }
 
@@ -361,22 +360,20 @@ void bign_exp(struct bign *self, const struct bign *lhs, const struct bign *rhs)
  */
 
 void bigz_create_empty(struct bigz *self) {
-  /*bign_create_empty(&self->n);
-  self->positive = true;*/
+  bign_create_empty(&self->n);
+  self->positive = true;
 }
 
 void bigz_create_from_value(struct bigz *self, int32_t val) {
-  /*if(val > 0){
-    self->n.data = calloc(self->n.capacity, sizeof(uint32_t));
+  self->n.data = calloc(1, sizeof(int32_t));
+  self->n.size = 1;
+  if(val > 0){
     self->n.data[0] = val;
-    self->n.size = 1;
     self->positive = true;
   }else {
-    self->n.data = calloc(self->n.capacity, sizeof(uint32_t));
-    self->n.data[0] = val;
-    self->n.size = 1;
+    self->n.data[0] = (-1) * val;
     self->positive = false;
-  }*/
+  }
 }
 
 void bigz_create_from_string(struct bigz *self, const char *str, unsigned base) {
