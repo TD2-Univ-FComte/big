@@ -19,8 +19,8 @@ void bign_create_empty(struct bign *self) {
 void bign_array_add(struct bign *self, uint32_t value) {
   if (self->size == self->capacity) {
     self->capacity *= 2;
-    int *data = calloc(self->capacity, sizeof(int));
-    memcpy(data, self->data, self->size * sizeof(int));
+    uint32_t *data = calloc(self->capacity, sizeof(uint32_t));
+    memcpy(data, self->data, self->size * sizeof(uint32_t));
     free(self->data);
     self->data = data;
   }
@@ -178,9 +178,6 @@ int bign_cmp_zero(const struct bign *self) {
 
 //Fonction permettant de calculer la puissance n d'un nombre donné (exponentiation rapide)
 uint32_t pow3(uint32_t r, uint32_t n){
-  uint32_t res = r;
-  uint32_t i = 1;
-  
   if(n == 1){
     return r;
   }else {
@@ -325,7 +322,7 @@ void bign_div_short(struct bign *quo, uint32_t *rem, const struct bign *lhs, uin
     r = c / rhs;
   }
 
-  rem = r;
+  *rem = r;
 }
 
 
@@ -378,6 +375,56 @@ void bigz_create_from_value(struct bigz *self, int32_t val) {
 }
 
 void bigz_create_from_string(struct bigz *self, const char *str, unsigned base) {
+  bigz_create_empty(self);
+  self->n.data = calloc(self->n.capacity, sizeof(uint32_t));
+
+  self->positive = str[0] == '-' ? false : true;
+  size_t size = strlen(str);
+
+  char *str_cpy = calloc(size, sizeof(char));
+  memcpy(str_cpy, str, size);
+  
+
+  if(self->n.data != NULL){
+    size_t limit = str[0] == '-' ? 1 : 0;
+    while(size > 1){
+
+      char *tab = calloc(9, sizeof(char));
+      size_t len_tab = 0;
+
+      //On rempli une chaine tampon avec 8 charactères ou moins (selon ce qu'il reste dans la liste principale)
+      for (size_t i = 0; i < 8 && size > 1; i++)
+      {
+        tab[i] = str_cpy[size - 1];
+        size--;
+        len_tab++;
+      }
+
+      char *rev = calloc(9, sizeof(char));
+
+      size_t j = len_tab- 1;
+
+      //On réinverse la chaine "tampon"
+      for (size_t i = 0; i < len_tab; i++)
+      {
+        rev[i] = tab[j];
+        j--;
+      }
+
+      //Conversion de la chaine de caractère vers un entier
+      //bign_array_add(&self->n, str_to_integer_ex(rev, base));
+      self->n.size += 1;
+
+      free(tab);
+      free(rev);
+
+    }
+  }
+
+  //Normalisation (suppression du 0 en chiffre significatif)
+  /*if(self->n.data[self->n.size - 1] == 0 && self->n.size > 1){
+    self->n.size--;
+  }*/
 }
 
 void bigz_copy_from_other(struct bigz *self, const struct bigz *other) {
@@ -387,6 +434,10 @@ void bigz_move_from_other(struct bigz *self, struct bigz *other) {
 }
 
 void bigz_destroy(struct bigz *self) {
+  if(self->n.data != NULL){
+    free(self->n.data);
+    self->n.data = NULL;
+  }
 }
 
 void bigz_print(const struct bigz *self) {
