@@ -115,22 +115,18 @@ void bign_copy_from_other(struct bign *self, const struct bign *other) {
 }
 
 void bign_move_from_other(struct bign *self, struct bign *other) {
-  /*if(self->data != NULL){
+  if(self->data != NULL){
     bign_destroy(self);
   }
    
   self->capacity = other->capacity;
   self->size = other->size;
   
-  self->data = malloc(other->size * sizeof(uint32_t));
-  for (size_t i = 0; i < other->size; i++)
-  {
-    self->data[i] = other->data[i]; 
-  }
+  self->data = other->data;
 
   other->data = NULL;
   other->capacity = 0;
-  other->size = 0;*/
+  other->size = 0;
 }
 
 void bign_destroy(struct bign *self) {
@@ -375,7 +371,7 @@ void bigz_create_from_value(struct bigz *self, int32_t val) {
 }
 
 void bigz_create_from_string(struct bigz *self, const char *str, unsigned base) {
-  /*bigz_create_empty(self);
+  bigz_create_empty(self);
   self->n.data = calloc(self->n.capacity, sizeof(uint32_t));
 
   self->positive = str[0] == '-' ? false : true;
@@ -421,8 +417,10 @@ void bigz_create_from_string(struct bigz *self, const char *str, unsigned base) 
     }
   }
 
+  free(str_cpy);
+
   //Normalisation (suppression du 0 en chiffre significatif)
-  if(self->n.data[self->n.size - 1] == 0 && self->n.size > 1){
+  /*if(self->n.data[self->n.size - 1] == 0 && self->n.size > 1){
     self->n.size--;
   }*/
 }
