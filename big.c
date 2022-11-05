@@ -278,24 +278,29 @@ void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 }
 
 void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
-  /*self->size=lhs->size+rhs->size;
+  self->size=lhs->size+rhs->size;
   self->capacity=(lhs->capacity+rhs->capacity)*2;
   self->data = calloc(self->size, sizeof(uint32_t));
 
   uint32_t base = pow3(2,31);
   
-  for(size_t i = 0;i<lhs->size;i++){
+  for(size_t i = 0;i<rhs->size;i++){
     uint32_t retenu = 0;
-    for(size_t j = 0;i<rhs->size;j++){
-      uint32_t t = lhs->data[i];
+    
+    for(size_t j = 0;j<lhs->size;j++){
+      uint32_t t = lhs->data[j]*rhs->data[i]+retenu+self->data[i+j];
       self->data[i+j]=t % base;
       retenu = t / base;
+      printf("%i * %i = %i    retenu = %i\n",lhs->data[j] , rhs->data[i],self->data[i+j], retenu); 
     }
     if(retenu>0){
       self->size+=1;
-      self->data[i+rhs->size]=retenu;
+      self->data[i+lhs->size]=retenu;
     }
-  }*/
+  }
+  for(size_t k=0;k<self->size;k++){
+    printf("Self->data[%i] : %i\n",k , self->data[k]);
+  }
 }
 
 
