@@ -278,7 +278,7 @@ void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 }
 
 void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
-  self->size=lhs->size+rhs->size;
+  self->size=lhs->size+rhs->size-1;
   self->capacity=(lhs->capacity+rhs->capacity)*2;
   self->data = calloc(self->size, sizeof(uint32_t));
 
