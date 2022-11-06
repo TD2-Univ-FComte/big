@@ -1,0 +1,12 @@
+{
+    "cmake.configureOnOpen": true,
+    "files.associations": {
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "chrono": "c",
+        "random": "c",
+        "limits": "c"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
+}
