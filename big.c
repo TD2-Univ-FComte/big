@@ -46,12 +46,15 @@ void bign_create_from_string(struct bign *self, const char *str) {
 
       char *tab = calloc(9, sizeof(char));
 
-      //Taille de la chaine tampon (utilisation d'une variable que l'on accrementera à chaque passage de la boucle qui suit, pour éviter de réutiliser strlen)
+      //Taille de la chaine tampon (utilisation d'une variable que l'on accrementera à chaque passage de la boucle qui suit, pour éviter de réutiliser strlen une nouvelle fois)
       size_t len_tab = 0;
 
       //On rempli une chaine tampon avec 8 charactères ou moins (selon ce qu'il reste dans la liste principale)
-      for (size_t i = 0; i < 8 && size > 0; i++)
+      for (size_t i = 0; i < 8; i++)
       {
+        if(size <= 0){
+          break;
+        }
         tab[i] = str[size - 1];
         size--;
         len_tab++;
@@ -81,6 +84,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
   
 }
 
+//Fonction réalisée par Anton Dolard.
 int str_to_integer_ex(char *str, int base) {
     size_t resultat=0;
     bool endfor=false;
@@ -302,7 +306,11 @@ void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 
 void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
   self->size=lhs->size+rhs->size-1;
-  self->data = calloc(self->size, sizeof(uint32_t));
+  if(self->data == NULL){
+    self->data = calloc(self->size, sizeof(uint32_t));
+  }
+
+  printf("Test : %i\n", self->data[0]);
 
   uint32_t base = pow3(2,31);
 
@@ -310,7 +318,7 @@ void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     
     for(size_t j = 0;j<rhs->size;j++){
-      uint32_t t = rhs->data[j]*lhs->data[i]+retenu+self->data[i+j];
+      uint32_t t = rhs->data[j]*lhs->data[i]+retenu+ (self->data[i+j] == lhs->data[i] || self->data[i+j] == lhs->data[j] ? 0 : self->data[i+j]);
       self->data[i+j]=t % base;
       retenu = t / base;
       printf("%x * %x = %x    retenu = %i\n",lhs->data[j] , rhs->data[i],self->data[i+j], retenu); 
