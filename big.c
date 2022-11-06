@@ -66,7 +66,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
         j--;
       }
 
-      //Conversion de la chaine de caractère vers un entier
+      //Conversion de la chaine de caractère (tampon inversé) vers un entier
       bign_array_add(self, str_to_integer_ex(rev, 16));
 
       free(tab);
