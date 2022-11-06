@@ -45,6 +45,8 @@ void bign_create_from_string(struct bign *self, const char *str) {
     while(size > 0){
 
       char *tab = calloc(9, sizeof(char));
+
+      //Taille de la chaine tampon (utilisation d'une variable que l'on accrementera à chaque passage de la boucle qui suit, pour éviter de réutiliser strlen)
       size_t len_tab = 0;
 
       //On rempli une chaine tampon avec 8 charactères ou moins (selon ce qu'il reste dans la liste principale)
@@ -57,13 +59,10 @@ void bign_create_from_string(struct bign *self, const char *str) {
 
       char *rev = calloc(9, sizeof(char));
 
-      size_t j = len_tab- 1;
-
       //On réinverse la chaine "tampon"
       for (size_t i = 0; i < len_tab; i++)
       {
-        rev[i] = tab[j];
-        j--;
+        rev[i] = tab[len_tab - i - 1];
       }
 
       //Conversion de la chaine de caractère (tampon inversé) vers un entier
