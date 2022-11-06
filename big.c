@@ -376,31 +376,29 @@ void bigz_create_from_string(struct bigz *self, const char *str, unsigned base) 
 
   self->positive = str[0] == '-' ? false : true;
   size_t size = strlen(str);
-
-  char *str_cpy = calloc(size, sizeof(char));
-  memcpy(str_cpy, str, size);
   
-
   if(self->n.data != NULL){
-    size_t limit = str[0] == '-' ? 1 : 0;
-    while(size > 1){
+    size_t limit = self->positive ? 0 : 1;
+    while(size > limit){
 
-      char *tab = calloc(9, sizeof(char));
+      size_t base_c = base == 2 ? 32 : base == 10 ? 10 : 8;
+
+      char *tab = calloc(base_c + 1, sizeof(char));
       size_t len_tab = 0;
 
       //On rempli une chaine tampon avec 8 charactères ou moins (selon ce qu'il reste dans la liste principale)
-      for (size_t i = 0; i < 8 && size > 1; i++)
+      for (size_t i = 0; i < base_c && size > limit; i++)
       {
-        tab[i] = str_cpy[size - 1];
+        tab[i] = str[size - 1];
         size--;
         len_tab++;
       }
 
-      char *rev = calloc(9, sizeof(char));
+      char *rev = calloc(base_c + 1, sizeof(char));
 
       size_t j = len_tab- 1;
 
-      //On réinverse la chaine "tampon"
+      //On inverse la chaine "tampon"
       for (size_t i = 0; i < len_tab; i++)
       {
         rev[i] = tab[j];
@@ -408,16 +406,13 @@ void bigz_create_from_string(struct bigz *self, const char *str, unsigned base) 
       }
 
       //Conversion de la chaine de caractère vers un entier
-      //bign_array_add(&self->n, str_to_integer_ex(rev, base));
-      self->n.size += 1;
+      bign_array_add(&self->n, str_to_integer_ex(rev, base));
 
       free(tab);
       free(rev);
 
     }
   }
-
-  free(str_cpy);
 
   //Normalisation (suppression du 0 en chiffre significatif)
   /*if(self->n.data[self->n.size - 1] == 0 && self->n.size > 1){
