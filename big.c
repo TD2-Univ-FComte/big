@@ -479,31 +479,34 @@ int bigz_cmp_zero(const struct bigz *self) {
 }
 
 void bigz_add(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs) {
-  if(lhs->positive = true && rhs->positive = true){
-    bign_add(self, lhs, rhs);
+  /*bigz_create_empty(self);
+  if(lhs->positive == true && rhs->positive == true){
+    printf("%s\n","ici");
+    bign_add(self->n, lhs, rhs);
    self->positive = true;
-  }else if(lhs->positive = false && rhs->positive = true){
-    bign_sub(self, rhs, lhs);
-  }else if(lhs->positive = true && rhs->positive = false){
-    bign_sub(self, lhs, rhs);
-  }else if(lhs->positive = false && rhs->positive = false){
-    bign_add(self, lhs, rhs);
+  }else if(lhs->positive == false && rhs->positive == true){
+    bign_sub(self->n, rhs, lhs);
+  }else if(lhs->positive == true && rhs->positive == false){
+    bign_sub(self->n, lhs, rhs);
+  }else if(lhs->positive == false && rhs->positive == false){
+    bign_add(self->n, lhs, rhs);
     self->positive = false;
-  }
+  }*/
 }
 
 void bigz_sub(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs) {
-   if(lhs->positive = true && rhs->positive = true){
+  /*bigz_create_empty(self);
+   if(lhs->positive == true && rhs->positive == true){
     bign_sub(self, lhs, rhs);
    self->positive = true;
-  }else if(lhs->positive = false && rhs->positive = true){
+  }else if(lhs->positive == false && rhs->positive == true){
     bign_add(self, rhs, lhs);
     self->positive = false;
-  }else if(lhs->positive = true && rhs->positive = false){
+  }else if(lhs->positive == true && rhs->positive == false){
     bign_add(self, lhs, rhs);
-  }else if(lhs->positive = false && rhs->positive = false){
+  }else if(lhs->positive == false && rhs->positive == false){
     bign_sub(self, rhs, lhs);
-  }
+  }*/
 }
 
 void bigz_mul(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs) {
