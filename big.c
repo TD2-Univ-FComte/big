@@ -484,9 +484,10 @@ int bigz_cmp(const struct bigz *lhs, const struct bigz *rhs) {
   }else if(rhs->positive == true && lhs -> positive == false){
     return -1;
   }
-  bign_cmp(lhs,rhs);
 
-  }
+  return bign_cmp(&lhs->n,&rhs->n);
+
+}
 
 
 int bigz_cmp_zero(const struct bigz *self) {
