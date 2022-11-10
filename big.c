@@ -199,74 +199,77 @@ uint32_t pow3(uint32_t r, uint32_t n){
 }
 
 void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
-
-   uint32_t base = pow3(2, 31);
-
+   //struct bign *selftemp = calloc(1,sizeof(struct bign));
+   //uint64_t base = pow3(2, 31);
+  uint32_t basetemp = 0;
+  basetemp-=1;
+  uint64_t base = (uint64_t)basetemp+1;
   if(lhs->size > rhs->size){
     self->size = lhs->size;
     if(self->data == NULL){
-      self->data = calloc(lhs->size, sizeof(uint32_t));
+      self->data = calloc(lhs->size+1, sizeof(uint32_t));
     }
 
     uint32_t retenu = 0;
     for (size_t i = 0; i < rhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
+      uint64_t c = (uint64_t)lhs->data[i] + rhs->data[i] + retenu;
       printf("c = %x\n",c);
       self->data[i] = c % base;
-    printf("%x + %x + %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,self->data[i] ,retenu);
+    
       retenu = c / base;
-      
-      if(retenu>0){
-      self->size+=1;
-      self->data[i+1]+=retenu;
-      }
+      printf("%x + %x + %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,self->data[i] ,retenu);
+    
     }
     
-
+    if(retenu>0){
+      self->size+=1;
+      self->data[self->size-1]=retenu;   
+    }
     bign_print(self);
     
   }else if(lhs->size < rhs->size){
     self->size = rhs->size;
     if(self->data == NULL){
-      self->data = calloc(rhs->size, sizeof(uint32_t));
+      self->data = calloc(rhs->size+1, sizeof(uint32_t));
     }
 
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
+      
+      uint64_t c = (uint64_t)lhs->data[i] + rhs->data[i] + retenu;
       printf("c = %x\n",c);
       self->data[i] = c % base;
-      printf("%x + %x + %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,self->data[i] ,retenu);
+     
       retenu = c / base;
-      
-      if(retenu>0){
-      self->size+=1;
-      self->data[i+1]+=retenu;
-      }
+       printf("%x + %x + %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,self->data[i] ,retenu);
     }
-    
+    if(retenu>0){
+      self->size+=1;
+      self->data[self->size-1]=retenu;   
+    }
     bign_print(self);
   }else {
     self->size = lhs->size;
     if(self->data == NULL){
-      self->data = calloc(lhs->size, sizeof(uint32_t));
+      self->data = calloc(lhs->size+1, sizeof(uint32_t));
     }
 
     uint32_t retenu = 0;
     for (size_t i = 0; i < lhs->size; i++)
     {
-      uint32_t c = lhs->data[i] + rhs->data[i] + retenu;
+      uint64_t c = (uint64_t)lhs->data[i] + rhs->data[i] + retenu;
       printf("c = %x\n",c);
       self->data[i] = c % base;
- printf("%x + %x + %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,self->data[i] ,retenu);
+ 
       retenu = c / base;
-     
-      if(retenu>0){
+     printf("%x + %x + %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,self->data[i] ,retenu);
+      
+    }
+    if(retenu>0){
       self->size+=1;
-      self->data[i+1]+=retenu;
-      }
+      self->data[self->size-1]=retenu;   
     }
 
     
@@ -318,12 +321,13 @@ void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     uint32_t retenu = 0;
     
     for(size_t j = 0;j<rhs->size;j++){
-      uint32_t t = rhs->data[j]*lhs->data[i]+retenu+ (self->data[i+j] == lhs->data[i] || self->data[i+j] == lhs->data[j] ? 0 : self->data[i+j]);
+      uint32_t t = rhs->data[j]*lhs->data[i]+retenu+ self->data[i+j];
       self->data[i+j]=t % base;
       retenu = t / base;
       printf("%x * %x = %x    retenu = %i\n",lhs->data[j] , rhs->data[i],self->data[i+j], retenu); 
+     
     }
-    if(retenu>0){
+     if(retenu>0){
       self->size+=1;
       self->data[i+lhs->size]=retenu;
     }
@@ -470,9 +474,15 @@ void bigz_print(const struct bigz *self) {
 }
 
 int bigz_cmp(const struct bigz *lhs, const struct bigz *rhs) {
+  if(lhs->positive == true && rhs -> positive == false){  
+    return 1;
+  }else if(rhs->positive == true && lhs -> positive == false){
+    return -1;
+  }
+  bign_cmp(lhs,rhs);
 
-  return 0;
-}
+  }
+
 
 int bigz_cmp_zero(const struct bigz *self) {
   return 0;
