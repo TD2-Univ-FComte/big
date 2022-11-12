@@ -463,9 +463,32 @@ void bigz_create_from_string(struct bigz *self, const char *str, unsigned base) 
 }
 
 void bigz_copy_from_other(struct bigz *self, const struct bigz *other) {
+   if(self->n.data != NULL){
+    bigz_destroy(self);
+  }
+  self->n.data = calloc(other->n.size, sizeof(uint32_t));
+  for (size_t i = 0; i < other->n.size; i++)
+  {
+    self->n.data[i] = other->n.data[i];
+  }
+  self->n.size = other->n.size;
+  self->positive=other->positive;
 }
 
 void bigz_move_from_other(struct bigz *self, struct bigz *other) {
+  if(self->n.data != NULL){
+    bigz_destroy(self);
+  }
+   
+  self->n.capacity = other->n.capacity;
+  self->n.size = other->n.size;
+  self->positive=other->positive;
+  
+  self->n.data = other->n.data;
+
+  other->n.data = NULL;
+  other->n.capacity = 0;
+  other->n.size = 0;
 }
 
 void bigz_destroy(struct bigz *self) {
