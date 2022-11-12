@@ -502,6 +502,9 @@ void bigz_print(const struct bigz *self) {
 }
 
 int bigz_cmp(const struct bigz *lhs, const struct bigz *rhs) {
+  if(lhs->n.data == 0 && rhs->n.data == 0){
+    return 0;
+  }
   if(lhs->positive == true && rhs -> positive == false){  
     return 1;
   }else if(rhs->positive == true && lhs -> positive == false){
@@ -514,7 +517,7 @@ int bigz_cmp(const struct bigz *lhs, const struct bigz *rhs) {
 
 
 int bigz_cmp_zero(const struct bigz *self) {
-  return 0;
+  return self->n.data[0] == 0 ? 0 : 1;
 }
 
 void bigz_add(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs) {
@@ -549,6 +552,20 @@ void bigz_sub(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs)
 }
 
 void bigz_mul(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs) {
+  /*bigz_create_empty(self);
+   if(lhs->positive == true && rhs->positive == true){
+    bign_mul(self, lhs, rhs);
+   self->positive = true;
+  }else if(lhs->positive == false && rhs->positive == true){
+    bign_mul(self, rhs, lhs);
+    self->positive = false;
+  }else if(lhs->positive == true && rhs->positive == false){
+    bign_mul(self, lhs, rhs);
+    self->positive = false;
+  }else if(lhs->positive == false && rhs->positive == false){
+    bign_mul(self, rhs, lhs);
+    self->positive = true;
+  }*/
 }
 
 void bigz_div(struct bigz *quo, struct bigz *rem, const struct bigz *lhs, const struct bigz *rhs) {
