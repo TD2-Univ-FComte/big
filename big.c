@@ -109,7 +109,7 @@ void bign_copy_from_other(struct bign *self, const struct bign *other) {
   if(self->data != NULL){
     bign_destroy(self);
   }
-  self->data = calloc(other->size, sizeof(uint32_t));
+  self->data = calloc(other->size+1, sizeof(uint32_t));
   for (size_t i = 0; i < other->size; i++)
   {
     self->data[i] = other->data[i];
@@ -202,18 +202,17 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
    struct bign *selftemp = calloc(1,sizeof(struct bign));
    bign_create_empty(selftemp);
    //uint64_t base = pow3(2, 31);
-  uint32_t basetemp = 0;
-  basetemp-=1;
-  uint64_t base = (uint64_t)basetemp+1;
+
+  uint64_t base = 0x100000000;
   if(lhs->size > rhs->size){
     selftemp->size = lhs->size;
-    selftemp->data = calloc(rhs->size+1, sizeof(uint32_t));
+    selftemp->data = calloc(lhs->size+1, sizeof(uint32_t));
 
     uint32_t retenu = 0;
     for (size_t i = 0; i < rhs->size; i++)
     {
       uint64_t c = (uint64_t)lhs->data[i] + rhs->data[i] + retenu;
-      printf("c = %x\n",c);
+      //printf("c = %x\n",c);
       selftemp->data[i] = c % base;
     
       retenu = c / base;
@@ -225,7 +224,7 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
       selftemp->size+=1;
       selftemp->data[selftemp->size-1]=retenu;   
     }
-    bign_print(self);
+    //bign_print(self);
     
   }else if(lhs->size < rhs->size){
     selftemp->size = rhs->size;
@@ -238,7 +237,7 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     {
       
       uint64_t c = (uint64_t)lhs->data[i] + rhs->data[i] + retenu;
-      printf("c = %x\n",c);
+      //printf("c = %x\n",c);
       selftemp->data[i] = c % base;
      
       retenu = c / base;
@@ -259,7 +258,7 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     for (size_t i = 0; i < lhs->size; i++)
     {
       uint64_t c = (uint64_t)lhs->data[i] + rhs->data[i] + retenu;
-      printf("c = %x\n",c);
+      //printf("c = %x\n",c);
       selftemp->data[i] = c % base;
  
       retenu = c / base;
@@ -279,9 +278,7 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 
 
 void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
-  uint32_t basetemp = 0;
-  basetemp-=1;
-  uint64_t base = (uint64_t)basetemp+1;
+  uint64_t base = 0x100000000;
   size_t max = rhs->size;
   if (bign_cmp(lhs,rhs)==0 || bign_cmp(lhs,rhs)>0){
     if(lhs->size > rhs->size){
@@ -318,7 +315,7 @@ void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs)
   selftemp->size=lhs->size+rhs->size+1;
   selftemp->capacity=selftemp->size*2;
   if(selftemp->data == NULL){
-    selftemp->data = calloc(selftemp->size, sizeof(uint32_t));
+    selftemp->data = calloc(selftemp->size+1, sizeof(uint32_t));
   }
 
   for(size_t i = 0;i<lhs->size;i++){
@@ -327,7 +324,7 @@ void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     for(size_t j = 0;j<rhs->size;j++){
       uint64_t t =(uint64_t)rhs->data[j]*lhs->data[i]+retenu+ selftemp->data[i+j];
       selftemp->data[i+j]=t % base;
-      printf("%x * %x = %x    retenu = %i\n",lhs->data[j] , rhs->data[i],selftemp->data[i+j], retenu);
+      //printf("%x * %x = %x    retenu = %i\n",lhs->data[j] , rhs->data[i],selftemp->data[i+j], retenu);
       retenu = t / base;
       }
      
@@ -338,6 +335,7 @@ void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs)
   bign_normalize(selftemp);
   bign_copy_from_other(self,selftemp);
   bign_print(selftemp);
+  bign_destroy(selftemp);
 }
 
 
