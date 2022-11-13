@@ -278,6 +278,8 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
 
 
 void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
+  struct bign *selftemp = calloc(1,sizeof(struct bign));
+  bign_create_empty(selftemp);
   uint64_t base = 0x100000000;
   size_t max = rhs->size;
   if (bign_cmp(lhs,rhs)==0 || bign_cmp(lhs,rhs)>0){
@@ -286,24 +288,32 @@ void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs)
     }else if(lhs->size < rhs->size){
       max = lhs->size;
     }
-    if(self->data == NULL){
-      self->data = calloc(max, sizeof(uint32_t));
-    }
-
+    
+    selftemp->data = calloc(max, sizeof(uint32_t));
+  
+    selftemp->size = max;
     uint32_t retenu = 0;
     for (size_t i = 0; i < max; i++)
     {
-      uint32_t d = lhs->data[i] - rhs->data[i] - retenu;
+      uint64_t d = (uint64_t)lhs->data[i] - rhs->data[i] - retenu;
 
-      self->data[i] = d % base;
-
+      selftemp->data[i] = d % base;
+    printf("%x - %x - %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,selftemp->data[i] ,retenu);
       retenu = d / base;
     }
-    self->size = max;
-    self->data[lhs->size - 1] -= retenu;
-    
+    if(retenu<0){
+      int i =0;
+      while (self->data[ i]==0)
+      {
+        selftemp->data[i]-=retenu; 
+        i++;
+      }
+    }
   }
-
+  bign_normalize(selftemp);
+  bign_print(selftemp);
+  bign_copy_from_other(self,selftemp);
+  
 }
 
 void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
