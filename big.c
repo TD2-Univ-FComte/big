@@ -84,7 +84,7 @@ void bign_create_from_string(struct bign *self, const char *str) {
   
 }
 
-//Fonction réalisée par Anton Dolard.
+//Fonction réalisée par Anton Dolard dans la stringlib.
 int str_to_integer_ex(char *str, int base) {
     size_t resultat=0;
     bool endfor=false;
@@ -282,36 +282,38 @@ void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs)
   bign_create_empty(selftemp);
   uint64_t base = 0x100000000;
   size_t max = rhs->size;
+  //bign_print(lhs);
   if (bign_cmp(lhs,rhs)==0 || bign_cmp(lhs,rhs)>0){
     if(lhs->size > rhs->size){
-      max = rhs->size;
-    }else if(lhs->size < rhs->size){
       max = lhs->size;
+    }else if(lhs->size < rhs->size){
+      max = rhs->size;
     }
     
     selftemp->data = calloc(max, sizeof(uint32_t));
   
     selftemp->size = max;
     uint32_t retenu = 0;
+    uint32_t retenutemp = 0;
     for (size_t i = 0; i < max; i++)
     {
-      uint64_t d = (uint64_t)lhs->data[i] - rhs->data[i] - retenu;
+      uint64_t d = (uint64_t)lhs->data[i] - rhs->data[i] + retenu;
 
       selftemp->data[i] = d % base;
-    printf("%x - %x - %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,selftemp->data[i] ,retenu);
+    
       retenu = d / base;
-    }
-    if(retenu<0){
-      int i =0;
-      while (self->data[ i]==0)
-      {
-        selftemp->data[i]-=retenu; 
-        i++;
+      //printf("%x - %x - %x = %x    retenu = %i\n",lhs->data[i] , rhs->data[i],retenu ,selftemp->data[i] ,retenu);
+      //printf("retenutemp = %i\n",retenutemp);
+      if(retenu!=0){
+        retenutemp=retenu;
       }
     }
+    
+    selftemp->data[max-1]+=retenutemp;   
+    
   }
   bign_normalize(selftemp);
-  bign_print(selftemp);
+  //bign_print(selftemp);
   bign_copy_from_other(self,selftemp);
   
 }
@@ -344,8 +346,8 @@ void bign_mul(struct bign *self, const struct bign *lhs, const struct bign *rhs)
   }
   bign_normalize(selftemp);
   bign_copy_from_other(self,selftemp);
-  bign_print(selftemp);
-  bign_destroy(selftemp);
+  //bign_print(selftemp);
+
 }
 
 
@@ -353,16 +355,44 @@ void bign_mul_karatsuba(struct bign *self, const struct bign *lhs, const struct 
 }
 
 void bign_mul_short(struct bign *self, const struct bign *lhs, uint32_t rhs) {
+  uint32_t basetemp = 0;
+  basetemp-=1;
+  uint64_t base = (uint64_t)basetemp+1;
+  struct bign *selftemp = calloc(1,sizeof(struct bign));
+  bign_create_empty(selftemp);
+  selftemp->size=lhs->size+1;
+  selftemp->capacity=selftemp->size*2;
+  if(selftemp->data == NULL){
+    selftemp->data = calloc(selftemp->size+1, sizeof(uint32_t));
+  }
+
+  for(size_t i = 0;i<lhs->size;i++){
+    uint32_t retenu = 0;
+    
+    uint64_t t =(uint64_t)rhs*lhs->data[i]+retenu+ selftemp->data[i];
+    selftemp->data[i]=t % base;
+    //printf("%x * %x = %x    retenu = %i\n",lhs->data[j] , rhs->data[i],selftemp->data[i+j], retenu);
+    retenu = t / base;
+      
+     
+    if(retenu>0){
+      selftemp->data[i+1]=retenu;
+    }
+  }
+  bign_normalize(selftemp);
+  bign_copy_from_other(self,selftemp);
+  //bign_print(selftemp);
+
 }
 
 // https://janmr.com/blog/2012/11/basic-multiple-precision-short-division/
 void bign_div_short(struct bign *quo, uint32_t *rem, const struct bign *lhs, uint32_t rhs) {
   quo->data = calloc(quo->capacity, sizeof(uint32_t));
   uint32_t r = 0;
-  uint32_t base = pow3(2, 31);
+  uint64_t base = 0x100000000;
   for (size_t i = 0; i < lhs->size; i++)
   {
-    uint32_t c = r * base + lhs->data[i];
+    uint64_t c = (uint64_t)r * base + lhs->data[i];
     quo->data[i] = c % rhs;
     quo->size += 1;
     r = c / rhs;
@@ -376,25 +406,29 @@ void bign_div_short(struct bign *quo, uint32_t *rem, const struct bign *lhs, uin
 void bign_div(struct bign *quo, struct bign *rem, const struct bign *lhs, const struct bign *rhs) {
   /*quo->data = calloc(quo->capacity, sizeof(uint32_t));
   rem->data = calloc(rem->capacity, sizeof(uint32_t));
-  if(bign_cmp(lhs, rhs) == -1){
-    for (size_t i = 0; i < lhs->size; i++)
-    {
-      rem->data[i] = lhs->data[i];
-    }
-    rem->size = lhs->size;
+  uint64_t base = 0x100000000;
+  uint32_t d =2;
+  bign_mul_short(rhs,rhs,d);
+  bign_mul_short(lhs,lhs,d);
+  size_t k =lhs->size-rhs->size;
+  for(size_t i = k;i>=0;--i){
 
-    quo->data[0] = 0;
-    quo->size = 1;
-  }else if(rhs->size == 1){
-    uint32_t r = 0;
-    bign_div_short(quo, r, lhs, rhs);
-  }else {
 
   }*/
 }
 
 
 void bign_exp(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
+  /*uint32_t *rem;
+  if(rhs->data == 1){
+    return lhs;
+  }else {
+    if(rhs->data % 2 == 0){
+      return pow3(bign_mul(lhs,lhs,lhs), bign_div_short(rhs,2));
+    }else {
+      return bign_mul(lhs,lhs,pow3(bign_mul(lhs,lhs,lhs), bign_div_short(rhs,rem,bign_sub(rhs,rhs,1),2),2));
+    }
+  }*/
 }
 
 /*
