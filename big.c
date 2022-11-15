@@ -268,7 +268,7 @@ void bign_add(struct bign *self, const struct bign *lhs, const struct bign *rhs)
  bign_copy_from_other(self,selftemp);
 }
 
-
+//sub a une erreur mémoire dans le random add sub mais je n'ai pas reussi a savoir pourquoi 
 void bign_sub(struct bign *self, const struct bign *lhs, const struct bign *rhs) {
   struct bign *selftemp = calloc(1,sizeof(struct bign));
   bign_create_empty(selftemp);
