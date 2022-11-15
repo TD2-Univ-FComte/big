@@ -544,12 +544,15 @@ int bigz_cmp_zero(const struct bigz *self) {
   return self->n.data[0] == 0 ? 0 : self->positive == true ? 1 : -1;
 }
 
+
+//bigz add marche théoriquement mais il ne passe pas les test car notre big z create from string ne marche pas pour les nombres décimaux
 void bigz_add(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs) {
   bigz_create_empty(self);
   if(lhs->positive == true && rhs->positive == true){
     bign_add(&self->n, &lhs->n,&rhs->n);
    self->positive = true;
   }else if(lhs->positive == false && rhs->positive == true){
+    //x-y=-(y-x) 
     if(bign_cmp(&rhs->n,&lhs->n)>0){
         bign_sub(&self->n, &rhs->n,&lhs->n);
         self->positive = true;
@@ -558,6 +561,7 @@ void bigz_add(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs)
       self->positive = false;
       }
   }else if(lhs->positive == true && rhs->positive == false){
+    //x-y=-(y-x) 
     if(bign_cmp(&lhs->n,&rhs->n)>0){
         bign_sub(&self->n, &lhs->n,&rhs->n);
         self->positive = true;
@@ -571,9 +575,11 @@ void bigz_add(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs)
   }
 }
 
+//bigz sub marche théoriquement mais il ne passe pas les test car notre big z create from string ne marche pas pour les nombres décimaux
 void bigz_sub(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs) {
   bigz_create_empty(self);
    if(lhs->positive == true && rhs->positive == true){
+    //x-y=-(y-x) 
       if(bign_cmp(&lhs->n,&rhs->n)>0){
         bign_sub(&self->n, &lhs->n,&rhs->n);
         self->positive = true;
@@ -587,6 +593,7 @@ void bigz_sub(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs)
   }else if(lhs->positive == true && rhs->positive == false){
     bign_add(&self->n, &lhs->n,&rhs->n);
   }else if(lhs->positive == false && rhs->positive == false){
+    //x-y=-(y-x) 
     if(bign_cmp(&rhs->n,&lhs->n)>0){
         bign_sub(&self->n, &rhs->n,&lhs->n);
         self->positive = true;
@@ -597,6 +604,7 @@ void bigz_sub(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs)
   }
 }
 
+//bigz mul marche théoriquement mais il ne passe pas les test car notre big z create from string ne marche pas pour les nombres décimaux
 void bigz_mul(struct bigz *self, const struct bigz *lhs, const struct bigz *rhs) {
   bigz_create_empty(self);
    if(lhs->positive == true && rhs->positive == true){
